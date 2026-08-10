@@ -64,7 +64,6 @@ open -e ~/PantheaAgentOS/etc/os.toml
 각각 별도의 터미널에서 실행합니다.
 
 ```bash
-~/PantheaAgentOS/bin/teamkernel migrate   # 최초 1회
 ~/PantheaAgentOS/bin/teamkernel           # 커널
 ~/PantheaAgentOS/bin/teamcenter           # 관제 센터
 ```
@@ -75,6 +74,7 @@ open -e ~/PantheaAgentOS/etc/os.toml
 
 - **HATC(데스크톱 앱)**: 앱이 새 버전을 자동으로 확인하고 업데이트합니다.
 - **본체**: updater를 다시 실행하면 최신 버전으로 갱신됩니다. 기존 설정(`etc/os.toml`)과 데이터(`var/`)는 보존됩니다.
+- 업데이트 후 `~/PantheaAgentOS/bin/teamkernel doctor`를 한 번 실행하세요. 데이터베이스 마이그레이션 미적용이 안내되면 `~/PantheaAgentOS/bin/teamkernel migrate`를 실행하면 됩니다.
 
 ## 문의
 
