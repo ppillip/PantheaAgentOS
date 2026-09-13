@@ -8,7 +8,7 @@ AI 에이전트 팀을 로컬에서 운용하는 에이전트 오퍼레이팅 �
 
 - macOS (Apple Silicon)
 - **설치 필수 도구**: `git`, `rsync`, `tmux` — 하나라도 없으면 설치가 진행되지 않습니다.
-- **에이전트 CLI**: Claude Code(`claude`), Codex(`codex`) — 없어도 설치는 계속되지만(경고만 출력), 팀 부팅 전에 사용할 에이전트 CLI를 설치·로그인해야 합니다.
+- **에이전트 CLI**: Claude Code(`claude`), Codex(`codex`), jcode(`jcode` — OpenAI 호환 API 서버용 드라이버) — 없어도 설치는 계속되지만(경고만 출력), 팀 부팅 전에 사용할 에이전트 CLI를 설치·로그인(jcode는 API 서버 설정)해야 합니다.
 
 ## 설치 방법
 
