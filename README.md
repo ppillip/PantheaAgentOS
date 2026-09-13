@@ -12,63 +12,28 @@ AI 에이전트 팀을 로컬에서 운용하는 에이전트 오퍼레이팅 �
 
 ## 설치 방법
 
-### 1. 설치 프로그램 다운로드
-
-[**최신 릴리즈**](https://github.com/ppillip/PantheaAgentOS/releases/latest) 페이지의 **Assets**에서 updater 바이너리를 내려받습니다.
-
-- 파일명: `panthea-updater_<업데이터 버전>_darwin-arm64`
-
-> 파일명의 버전은 updater 자체 버전으로, 제품(PantheaAgentOS) 버전과 다릅니다. 제품 버전은 릴리즈 페이지의 태그를 따릅니다.
-
-### 2. 실행 권한 부여
-
-터미널에서 내려받은 파일에 실행 권한을 줍니다.
+터미널에서 아래 한 줄을 실행합니다.
 
 ```bash
-chmod +x panthea-updater_*_darwin-arm64
+curl -fsSL https://github.com/ppillip/PantheaAgentOS/releases/latest/download/install-panthea.sh | bash
 ```
 
-macOS가 실행을 차단하는 경우 격리 속성을 해제합니다.
+스크립트가 최신 릴리즈 확인, 설치 프로그램 다운로드와 무결성 검증, 본체 설치(`~/PantheaAgentOS`), HATC 데스크톱 앱 배치까지 자동으로 수행합니다. macOS 격리 속성(quarantine) 처리도 스크립트가 알아서 합니다.
+
+설치 위치를 바꾸려면 내려받아 실행하며 `--home <경로>`를 붙입니다.
+
+### 라이선스 파일 설정
+
+서비스 제공자에게 발급받은 라이선스 파일을 설치 폴더에 넣습니다. 데이터베이스 접속 정보는 라이선스에 포함되어 있어 별도 입력이 필요 없습니다.
 
 ```bash
-xattr -d com.apple.quarantine panthea-updater_*_darwin-arm64
+cp <발급받은파일> ~/PantheaAgentOS/etc/panthea.license
+chmod 600 ~/PantheaAgentOS/etc/panthea.license
 ```
 
-### 3. 설치 실행
+> ⚠️ 라이선스 파일은 접속 비밀을 포함합니다. 채팅·로그 등 외부에 노출하지 마세요.
 
-```bash
-./panthea-updater_*_darwin-arm64 install --home "$HOME/PantheaAgentOS" --no-start
-```
-
-- `--home`은 **필수**입니다. 본체가 자동으로 다운로드되어 지정한 경로(`~/PantheaAgentOS`)에 설치됩니다.
-- `--no-start`를 붙이면 **설치 직후의 자동 진단**(doctor)을 생략합니다. install은 `--no-start` 여부와 무관하게 서비스 프로세스를 기동하지 않습니다. **첫 설치에서는 반드시 붙이세요** — 아직 서비스 계정(database URL)을 설정하기 전이므로, 자동 진단이 실패할 수 있습니다. 설정을 마친 뒤 아래 5~6단계에서 직접 확인합니다.
-- 대상 플랫폼(`--target`)은 생략하면 현재 OS/아키텍처로 자동 감지됩니다.
-
-### 4. 서비스 계정 설정
-
-설치된 설정 파일에 `[database]` 섹션이 없다면, 먼저 샘플 설정을 복사합니다.
-
-```bash
-cp ~/PantheaAgentOS/etc/os.sample.toml ~/PantheaAgentOS/etc/os.toml
-```
-
-서비스 제공자에게 발급받은 **database URL**을 설정 파일에 입력합니다.
-
-```bash
-open -e ~/PantheaAgentOS/etc/os.toml
-```
-
-`[database]` 섹션의 `url` 값을 발급받은 URL로 바꿉니다.
-
-> ⚠️ database URL은 비밀번호를 포함합니다. 채팅·로그 등 외부에 노출하지 마세요.
-
-URL을 입력해 파일에 비밀이 들어간 뒤에는 소유자만 읽을 수 있게 권한을 잠급니다.
-
-```bash
-chmod 600 ~/PantheaAgentOS/etc/os.toml
-```
-
-### 5. 데이터베이스 마이그레이션 확인
+### 데이터베이스 확인 (선택)
 
 ```bash
 ~/PantheaAgentOS/bin/teamkernel migrate --status --json
@@ -81,13 +46,13 @@ chmod 600 ~/PantheaAgentOS/etc/os.toml
 - `baseline_required` — 임의로 적용하지 말고 서비스 제공자에게 문의하세요.
 - `dirty` — 중단하고 서비스 제공자에게 문의하세요.
 
-### 6. 설치 확인
+### 설치 확인
+
+설치 완료 여부는 설치 스크립트의 성공 종료와 마지막 완료 안내 메시지가 기준입니다. 아래 명령은 본체 바이너리가 실행되는지 추가로 확인하는 용도입니다.
 
 ```bash
-~/PantheaAgentOS/bin/doctor
+~/PantheaAgentOS/bin/teamkernel --version
 ```
-
-진단이 통과하면 설치가 완료된 것입니다.
 
 ## 실행
 
@@ -141,7 +106,7 @@ chmod 600 ~/PantheaAgentOS/etc/os.toml
   ```bash
   ./panthea-updater_*_darwin-arm64 apply --handoff ~/PantheaAgentOS/.update/handoff/<operation_id>.json --home "$HOME/PantheaAgentOS"
   ```
-- 업데이트 후 `~/PantheaAgentOS/bin/doctor`를 한 번 실행하세요. 데이터베이스 마이그레이션 미적용이 안내되면 위 **5단계(데이터베이스 마이그레이션 확인)의 `verdict` 분기**에 따라 진행하세요 — `empty`/`pending`일 때만 `teamkernel migrate`를 실행하고, `baseline_required`/`dirty`는 적용하지 말고 서비스 제공자에게 문의합니다.
+- 업데이트 후 이상이 의심되면 위 **데이터베이스 확인 (선택)** 절의 `migrate --status` 명령으로 `verdict`를 확인하세요 — `empty`/`pending`일 때만 `teamkernel migrate`를 실행하고, `baseline_required`/`dirty`는 적용하지 말고 서비스 제공자에게 문의합니다.
 
 ## 문의
 
